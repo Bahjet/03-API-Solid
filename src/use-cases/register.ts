@@ -22,16 +22,16 @@ export class RegisterUseCase {
     email,
     password,
   }: RegisterUseCaseRequest): Promise<RegisterUseCaseResponse> {
-    const password_hash = await hash(password, 6) // a senha vai passar por 6 rouds de hash
-
     const userWithSomeEmail = await this.usersRepository.findByEmail(email)
 
     if (userWithSomeEmail) {
       throw new UserAlreadyExistsError()
     }
 
+    const password_hash = await hash(password, 6) // a senha vai passar por 6 rouds de hash
+
     const user = await this.usersRepository.create({
-      // mandando os dados para o banco de dados
+      // criando o usuário com funcionalidade instaciada do banco de dados
       name,
       email,
       password_hash,

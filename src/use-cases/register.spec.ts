@@ -1,17 +1,23 @@
-import { expect, test, describe } from 'vitest'
+import { expect, test, describe, beforeEach } from 'vitest'
 import { RegisterUseCase } from './register'
 import { compare } from 'bcryptjs'
-import { InMemmoryUsersrepository } from '@/in-memory/in-memory-users-repository'
+import { InMemmoryUsersRepository } from '@/in-memory/in-memory-users-repository'
 import { UserAlreadyExistsError } from './errors/user-already-exists-error'
 
 // TESTES UNITARIOS
 
-describe('Register Use Case', () => {
-  test('should be able to register', async () => {
-    const usersRepository = new InMemmoryUsersrepository()
-    const registerUseCase = new RegisterUseCase(usersRepository)
+// variavies para todos tests usando o beforeEach
+let usersRepository: InMemmoryUsersRepository
+let sut: RegisterUseCase
 
-    const { user } = await registerUseCase.execute({
+describe('Register Use Case', () => {
+  beforeEach(() => {
+    usersRepository = new InMemmoryUsersRepository()
+    sut = new RegisterUseCase(usersRepository)
+  })
+
+  test('should be able to register', async () => {
+    const { user } = await sut.execute({
       name: 'John Doe',
       email: 'johndoddde@example.com',
       password: '123456',
@@ -21,10 +27,7 @@ describe('Register Use Case', () => {
   })
 
   test('should hash user password upon registration', async () => {
-    const usersRepository = new InMemmoryUsersrepository()
-    const registerUseCase = new RegisterUseCase(usersRepository)
-
-    const { user } = await registerUseCase.execute({
+    const { user } = await sut.execute({
       name: 'John Doe',
       email: 'johndoddde@example.com',
       password: '123456',
@@ -40,12 +43,9 @@ describe('Register Use Case', () => {
   })
 
   test('should not be able to register with same email twice', async () => {
-    const usersRepository = new InMemmoryUsersrepository()
-    const registerUseCase = new RegisterUseCase(usersRepository)
-
     const email = 'johndoe@example.com'
 
-    await registerUseCase.execute({
+    await sut.execute({
       name: 'John Doe',
       email,
       password: '123456',
@@ -53,7 +53,7 @@ describe('Register Use Case', () => {
 
     await expect(() =>
       // rejects trabalha com promise então precisa colocar uma await no expect
-      registerUseCase.execute({
+      sut.execute({
         name: 'John Doe',
         email,
         password: '123456',
