@@ -1,13 +1,22 @@
-name: Run Unit Tests
-#inicializa esse workflow(esteira de comandos) quando usar o git push
-on: [push]
+name: Run E2E Tests
+
+on: [pull_request]
 
 jobs:
-  run-unit-tests:
-    name: Run Unit Tests
+  run-e2e-tests:
+    name: Run E2E Tests
     runs-on: ubuntu-latest
-    
-    #steps instrução que o job vai executa
+  
+  services:
+    postgres:
+      image: bitnami/postgresql
+        ports:
+          - 5432:5432
+        environment:
+          - POSTGRESQL_USERNAME=docker
+          - POSTGRESQL_PASSWORD=docker
+          - POSTGRESQL_DATABASE=apisolid
+
     steps:
         #uses: faz o dowload do codigo para dentro da maquina no caso ubuntu
       - uses: actions/checkout@v4
@@ -18,5 +27,7 @@ jobs:
           cache: 'npm'
         #ci é igual ao install porem ci não faz perguntas ao usuario 
       - run: npm ci
-
-      - run: npm run test 
+        
+      - run: npm run test:e2e
+        env:
+          JWT_SECRET:  testing
