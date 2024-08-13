@@ -14,7 +14,7 @@ describe('Create Gym Use Case', () => {
     sut = new CreateGymUseCase(gymsRepository)
   })
 
-  test.only('should be able to create a gym', async () => {
+  test('should be able to create a gym', async () => {
     const { gym } = await sut.execute({
       title: 'JavaScript Gym',
       latitude: -24.0123935,
