@@ -1,0 +1,22 @@
+name: Run Unit Tests
+#inicializa esse workflow(esteira de comandos) quando usar o git push
+on: [push]
+
+jobs:
+  run-unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    
+    #steps instrução que o job vai executa
+    steps:
+        #uses: baixa o codigo dentro da maquina no caso ubuntu
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          #cache: se não mudar o workflow salva em cache e roda mais rapido
+          cache: 'npm'
+        #ci é igual ao install porem ci não faz perguntas ao usuario 
+      - run: npm ci
+        
+      - run: npm run test 

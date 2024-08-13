@@ -24,10 +24,10 @@ export async function authenticate(
       email,
       password,
     })
-    // nunca coloque senha ou email no JWT por não ser seguro usar dados sensiveis
+    // nunca coloque dados sensiveis como senha ou email no JWT
 
     const token = await reply.jwtSign(
-      {},
+      { role: user.role },
       {
         sign: {
           sub: user.id,
@@ -35,9 +35,28 @@ export async function authenticate(
       },
     )
 
-    return reply.status(200).send({
-      token,
-    })
+    const refreshToken = await reply.jwtSign(
+      { role: user.role },
+      {
+        sign: {
+          sub: user.id,
+          expiresIn: '7d',
+        },
+      },
+    )
+
+    return reply
+      .setCookie('refreshToken', refreshToken, {
+        // refreshToken nome do cookie , dados do refresh token(outro jwt com maior validade)
+        path: '/', // path: rotas que terão acesso ao cookie ('/' todas rotas tem acesso)
+        secure: true, // informa que o nosso cookie será encriptado com HTTPs fazendo com que o front não consiga identificar de forma clara
+        sameSite: true, // esse cookie só vai ser acessivel dentro do mesmo dominio (site)
+        httpOnly: true, // limita o acesso apenas ao back entre requisições e respostas, não salva nada no browser
+      })
+      .status(200)
+      .send({
+        token,
+      })
   } catch (err) {
     if (err instanceof InvalidCredentialsError) {
       return reply.status(400).send({ message: err.message })
